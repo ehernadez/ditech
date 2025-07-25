@@ -11,7 +11,7 @@ Este proyecto es un orquestador de tareas de integración desarrollado con Djang
 ### 1. Clona el repositorio
 ```sh
 git clone https://github.com/ehernadez/ditech.git
-cd orquestador
+cd ditech
 ```
 
 ### 2. Configura las variables de entorno (opcional)
@@ -40,21 +40,48 @@ docker compose exec web python manage.py test core.tests --verbosity=2
 ```
 Todos los tests deben pasar. Si algún test falla, revisa la sección de troubleshooting.
 
-### 6. Accede a la API
+### 6. Acceso y autenticación
+Para probar la API necesitas un usuario registrado y un token JWT.
+
+#### Crear un superusuario (admin)
+En una terminal ejecuta:
+```powershell
+docker compose exec web python manage.py createsuperuser
+```
+Sigue las instrucciones para crear el usuario y contraseña desde la terminal.
+
+#### Obtener un token JWT
+Haz un POST a `/api/token/` con el usuario y contraseña creados:
+```json
+{
+  "username": "<tu_usuario>",
+  "password": "<tu_contraseña>"
+}
+```
+Puedes usar [Postman](https://www.postman.com/) para probar:
+```powershell
+http POST http://localhost:8000/api/token/ username=<tu_usuario> password=<tu_contraseña>
+```
+El token lo usas en el header `Authorization: Bearer <token>` para acceder a los endpoints protegidos.
+
+#### Crear usuario desde Django admin
+> **Nota:** También puedes crear usuarios fácilmente desde la interfaz de administración en [http://localhost:8000/admin](http://localhost:8000/admin) usando el superusuario creado. ¡Accede al panel y agrega usuarios desde la web!
+
+### 7. Accede a la API
 - La API estará disponible en: [http://localhost:8000](http://localhost:8000)
 - Endpoints principales:
   - `/integration-tasks/` (GET, POST, PUT, DELETE)
   - `/integration-tasks/execute/<id>/` (POST) para ejecutar una tarea asíncrona
 
-### 7. Documentación Swagger/OpenAPI
+### 8. Documentación Swagger/OpenAPI
 - El proyecto incluye documentación con **drf-spectacular**.
 - Accede a la documentación en: [http://localhost:8000/api/docs/](http://localhost:8000/api/docs/)
 - El esquema OpenAPI lo puedes descargar en: [http://localhost:8000/api/schema/](http://localhost:8000/api/schema/)
 - Los ejemplos de request y los campos obligatorios están definidos en la documentación y en los serializers.
 
-### 8. Verifica logs de Celery
+### 9. Verifica logs de Celery
 Para ver el seguimiento de las tareas ejecutadas:
-```sh
+```powershell
 docker compose logs celery
 ```
 
