@@ -1,0 +1,46 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      - POSTGRES_DB=orquestador_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - DEBUG=1
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=orquestador_db
+      - DB_USER=postgres
+      - DB_PASSWORD=root
+    depends_on:
+      - db
+
+  celery:
+    build: .
+    command: celery -A orquestador worker --loglevel=INFO
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+      - web
+  
+volumes:
+  pgdata:
