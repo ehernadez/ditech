@@ -46,20 +46,26 @@ Todos los tests deben pasar. Si algún test falla, revisa la sección de trouble
   - `/integration-tasks/` (GET, POST, PUT, DELETE)
   - `/integration-tasks/execute/<id>/` (POST) para ejecutar una tarea asíncrona
 
-### 7. Verifica logs de Celery
+### 7. Documentación Swagger/OpenAPI
+- El proyecto incluye documentación con **drf-spectacular**.
+- Accede a la documentación en: [http://localhost:8000/api/docs/](http://localhost:8000/api/docs/)
+- El esquema OpenAPI lo puedes descargar en: [http://localhost:8000/api/schema/](http://localhost:8000/api/schema/)
+- Los ejemplos de request y los campos obligatorios están definidos en la documentación y en los serializers.
+
+### 8. Verifica logs de Celery
 Para ver el seguimiento de las tareas ejecutadas:
 ```sh
 docker compose logs celery
 ```
 
 ## Notas
-- Las tareas ejecutadas por Celery actualizan el estado y resultado en la base de datos.
+- Las tareas ejecutadas por Celery actualizan el estado, fecha de ejecucion y resultado en la base de datos.
 - Puedes consultar el estado de una tarea con un GET a `/integration-tasks/`.
 - El proyecto incluye inyección de dependencias y arquitectura desacoplada para facilitar pruebas y mantenimiento.
-- Los tests unitarios están en `core/tests/` y cubren los módulos principales. Los tests que dependían de la serialización manual de JSON en DRF han sido eliminados para evitar errores de media type.
+- Los tests unitarios están en `core/tests/` y cubren los módulos principales.
+- La documentación Swagger/OpenAPI se genera automáticamente y se mantiene centralizada en `core/common/openapi_docs.py`.
 
 ## Troubleshooting
-- Si tienes errores de media type en los tests, asegúrate de no envolver los requests con `Request(request)` o usa el DRF test client para integración.
 - Si algún servicio no levanta, revisa los logs con:
   ```sh
   docker compose logs web
@@ -75,6 +81,7 @@ docker compose logs celery
 - dependency-injector
 - djangorestframework-simplejwt
 - psycopg2-binary
+- drf-spectacular
 
 ## Estructura principal
 - `core/` - Lógica de negocio, modelos, servicios, repositorios, jobs Celery

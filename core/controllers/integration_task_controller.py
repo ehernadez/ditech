@@ -4,6 +4,13 @@ from rest_framework.response import Response
 from core.containers import Container
 from core.services.integration_task_service import IntegrationTaskService
 from core.serializers import IntegrationTaskSerializer
+from core.common.openapi_docs import (
+    create_task_schema,
+    update_task_schema,
+    execute_task_schema,
+    delete_task_schema,
+    get_tasks_schema
+)
 
 class IntegrationTaskViewSet(viewsets.ViewSet):
     permission_classes = [permissions.IsAuthenticated]
@@ -13,12 +20,14 @@ class IntegrationTaskViewSet(viewsets.ViewSet):
         self.repository = repository or Container.repository()
         self.service = service or IntegrationTaskService(repository=self.repository)
 
+    @get_tasks_schema
     @action(detail=False, methods=['get'])
     def get_tasks(self, request):
         tasks = self.service.get_tasks_by_user(request.user)
         serializer = IntegrationTaskSerializer(tasks, many=True)
         return Response(serializer.data)
 
+    @create_task_schema
     def create(self, request):
         task_name = request.data.get('name')
         if not task_name:
@@ -45,6 +54,7 @@ class IntegrationTaskViewSet(viewsets.ViewSet):
         serializer = IntegrationTaskSerializer(task)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    @update_task_schema
     def update(self, request, pk=None):
         if not pk:
             return Response({"error": "El ID de la tarea es obligatorio"}, status=status.HTTP_400_BAD_REQUEST)
@@ -69,12 +79,14 @@ class IntegrationTaskViewSet(viewsets.ViewSet):
         serializer = IntegrationTaskSerializer(task)
         return Response(serializer.data)
 
+    @delete_task_schema
     def delete(self, request, pk=None):
         if not pk:
             return Response({"error": "El ID de la tarea es obligatorio"}, status=status.HTTP_400_BAD_REQUEST)
         self.service.delete_task(pk, request.user)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @execute_task_schema
     @action(detail=False, methods=['post'], url_path='execute/(?P<pk>[^/.]+)')
     def execute(self, request, pk=None):
         if not pk:

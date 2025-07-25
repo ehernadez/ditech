@@ -6,3 +6,4 @@ celery
 redis
 requests
 dependency-injector
+drf-spectacular

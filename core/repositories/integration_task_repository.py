@@ -14,7 +14,7 @@ class IntegrationTaskRepository(IIntegrationTaskRepository):
         return task
 
     def get_tasks_by_user(self, user):
-        return IntegrationTask.objects.filter(user=user)
+        return IntegrationTask.objects.filter(user=user).order_by('-created_at')
     
     def get_task_by_id(self, task_id, user):
         try:
